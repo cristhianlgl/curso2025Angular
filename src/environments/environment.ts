@@ -2,5 +2,7 @@ export const environment = {
     production : true,
     companyName: "Gifs",    
     companyName2: "App",    
-    companySlogan: "Maneja tus gifs"
+    companySlogan: "Maneja tus gifs",
+    apiKey: "",
+    baseUrl: ""
 };
