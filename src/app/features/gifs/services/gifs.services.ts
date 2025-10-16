@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@envs/environment';
+import { map } from 'rxjs';
 import { Gif } from 'src/app/shared/interfaces/gif.interface';
 import type { GiphyResponse } from 'src/app/shared/interfaces/githy.interface';
 import { GifMapper } from 'src/app/shared/mappers/gifMapper';
@@ -27,10 +28,26 @@ export class GifsServices {
         offset: 0,
         rating: 'r'
       }
-    }).subscribe((resp)=> {
+    }).subscribe((resp) => {
       const gifs = GifMapper.mapGiphyArrayToGifArray(resp.data);
       this.trendingGifs.set(gifs);
       this.trendingGifsLoading.set(false)
     })
+  }
+
+  getSearchGifs(query: string) {
+   return this.http.get<GiphyResponse>(`${environment.baseUrl}/gifs/search`, {
+      params: {
+        api_key: environment.apiKey,
+        q: query,
+        limit: 24,
+        offset: 0,
+        rating: 'r',
+        lang: 'es'
+      }
+    })
+    .pipe(
+      map(({data}) =>  GifMapper.mapGiphyArrayToGifArray(data))
+    )
   }
 }
