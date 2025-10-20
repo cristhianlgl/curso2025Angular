@@ -55,4 +55,9 @@ export class GifsServices {
       tap(data => this.historySearchedGif.update( history => ({...history, [query.toLowerCase()]: data})))
     )
   }
+
+  getHistoryforQuery(query: string){
+    return this.historySearchedGif()[query] ?? []
+  }
+
 }
