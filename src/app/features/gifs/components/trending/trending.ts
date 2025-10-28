@@ -10,5 +10,6 @@ import { GifsServices } from '../../services/gifs.services';
 })
 export default class Trending {
   gifServices = inject(GifsServices);
-  trendingGifs = this.gifServices.trendingGifs;
+  trendingGifsGroup = this.gifServices.trendingGifsGroup;
+
 }
