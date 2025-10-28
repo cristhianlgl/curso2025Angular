@@ -18,7 +18,7 @@ export const routes: Routes = [
           import('./features/gifs/components/search/search').then((m) => m.default),
       },
       {
-        path: 'history/:query ',
+        path: 'history/:query',
         loadComponent: () =>
           import('./features/gifs/components/history/history').then((m) => m.default),
       },

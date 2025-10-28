@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { GifsList } from "../trending/gifs-list/gifs-list";
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
@@ -17,8 +17,10 @@ export default class History {
 
   queryParam = toSignal(
     inject(ActivatedRoute).params.pipe(
-      map(params => params['query'])
+      map(params => params['query']
+      )
     )
   )
-  gifsHistory = inject(GifsServices).getHistoryforQuery(this.queryParam())
+  gifsServices =inject(GifsServices)
+  gifsHistory = computed(() => this.gifsServices.getHistoryforQuery(this.queryParam()))
 }
