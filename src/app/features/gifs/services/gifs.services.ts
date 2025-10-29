@@ -7,9 +7,9 @@ import type { GiphyResponse } from 'src/app/shared/interfaces/githy.interface';
 import { GifMapper } from 'src/app/shared/mappers/gifMapper';
 
 const loadFromLocalStorage = (): Record<string, Gif[]> => {
-  const gifHistory = localStorage.getItem('historyGif')
-  return gifHistory ? JSON.parse(gifHistory) : {}
-}
+  const gifHistory = localStorage.getItem('historyGif');
+  return gifHistory ? JSON.parse(gifHistory) : {};
+};
 
 @Injectable({
   providedIn: 'root',
@@ -18,15 +18,16 @@ export class GifsServices {
   private http = inject(HttpClient);
 
   trendingGifs = signal<Gif[]>([]);
-  trendingGifsLoading = signal(true);
-  trendingGifsGroup = computed<Gif[][]> (() => {
-    const groups = []
-    for (let i = 0; i < this.trendingGifs().length; i+=3) {
-      groups.push(this.trendingGifs().slice(i, i+3))
+  isTrendingGifsLoading = signal(false);
+  private pageTrending = signal(0);
+  trendingGifsGroup = computed<Gif[][]>(() => {
+    const groups = [];
+    for (let i = 0; i < this.trendingGifs().length; i += 3) {
+      groups.push(this.trendingGifs().slice(i, i + 3));
     }
     return groups;
-  })
-  historySearchedGif = signal<Record<string, Gif[]>>( loadFromLocalStorage());
+  });
+  historySearchedGif = signal<Record<string, Gif[]>>(loadFromLocalStorage());
   historySearchedGifKeys = computed(() => Object.keys(this.historySearchedGif()));
 
   constructor() {
@@ -34,19 +35,27 @@ export class GifsServices {
   }
 
   loadTrendigGifs() {
+    if(this.isTrendingGifsLoading()) return;
+
+    this.isTrendingGifsLoading.set(true);
+
     this.http
       .get<GiphyResponse>(`${environment.baseUrl}/gifs/trending`, {
         params: {
           api_key: environment.apiKey,
-          limit: 24,
-          offset: 0,
+          limit: 20,
+          offset: this.pageTrending() * 20,
           rating: 'r',
         },
       })
       .subscribe((resp) => {
         const gifs = GifMapper.mapGiphyArrayToGifArray(resp.data);
-        this.trendingGifs.set(gifs);
-        this.trendingGifsLoading.set(false);
+        this.trendingGifs.update(currentGifs => [
+          ...currentGifs,
+          ...gifs
+        ])
+        this.pageTrending.update( page => ++page)
+        this.isTrendingGifsLoading.set(false);
       });
   }
 
@@ -75,6 +84,6 @@ export class GifsServices {
   }
 
   saveToStorage = effect(() => {
-    localStorage.setItem('historyGif',JSON.stringify(this.historySearchedGif()))
+    localStorage.setItem('historyGif', JSON.stringify(this.historySearchedGif()));
   });
 }
